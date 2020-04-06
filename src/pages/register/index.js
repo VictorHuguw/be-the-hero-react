@@ -3,8 +3,18 @@ import './styles.css';
 import logo from '../../assets/logo.svg';
 import {Link} from 'react-router-dom';
 import {FiArrowLeft} from 'react-icons/fi';
+import api from '../../services/api';
 
 export default function register() {
+
+    function handleRegister(e){
+        e.preventDefault();
+    }
+
+    function enviar(){
+     alert('entrou')
+    }
+
     return (
         <div className="register-container">
             <div className="content">
@@ -15,7 +25,7 @@ export default function register() {
 
                     <Link className= ".back-link" to="/register"><FiArrowLeft size={16} color="#E02041" />Não tenho cadastro</Link>
                 </section>
-                <form>  
+                <form onSubmit = {handleRegister}>  
                     <input placeholder="Nome da ONG"/>
                     <input type="email" placeholder="Email"/>
                     <input placeholder="Whatsapp"/>
@@ -25,6 +35,7 @@ export default function register() {
                         <input placeholder="UF" style={{ width : 80}}/>
                     </div>
                     <button className = "button" type="submit">Cadastrar</button>
+                    <button className = "button" onClick = {enviar}>Listar</button>
                 </form>
             </div>
         </div>
