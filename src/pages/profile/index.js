@@ -1,81 +1,80 @@
-import React from 'react';
-import logo from '../../assets/logo.svg';
-import {Link} from 'react-router-dom';
-import {FiPower,FiTrash2} from 'react-icons/fi'; 
-import './styles.css';
+import React, { useState, useEffect } from 'react'
+import { Link, useHistory } from 'react-router-dom'
+import { FiPower, FiTrash2 } from 'react-icons/fi'
 
-export default function profile(){
-    return (
-        <div className = "profile-container">
-            <header>
-                <img src = {logo} alt = "teste" />
-                <span>Bem vinda, APAD</span>
-                <Link className="button" to='/incidents/new'>Cadastrar novo caso</Link>
-                <button type="button">
-                    <FiPower size = {18} color = "#E02040"/>
-                </button>
-            </header>
+import logoImg from '../../assets/logo.svg'
 
-            <h1>Casos cadastrados</h1>
-            <ul>
-                <li>
-                    <strong>CASO : </strong>
-                    <p>Caso teste</p>
+import api from '../../services/api'
 
-                    <strong>DESCRIÇÃO: </strong>
-                    <p>Descricao teste</p>
+import './styles.css'
 
-                    <strong>VALOR: </strong>
-                    <p> R$ 120,00 </p>
+export default function Profile() {
+   const [incidents, setIncidents] = useState([])
 
-                    <button type="button" >
-                        <FiTrash2 size = {20} color = "#a8a8d3"></FiTrash2>
-                    </button>
-                </li>
-                <li>
-                    <strong>CASO : </strong>
-                    <p>Caso teste</p>
+   const history = useHistory()
+   const ongId = localStorage.getItem('ongId')
+   const ongName = localStorage.getItem('ongName')
 
-                    <strong>DESCRIÇÃO: </strong>
-                    <p>Descricao teste</p>
+   useEffect(() => {
+      api.get('profiles', {
+         headers: {
+            Authorization: ongId
+         }
+      }).then(response => setIncidents(response.data))
+   }, [ongId])
 
-                    <strong>VALOR: </strong>
-                    <p> R$ 120,00 </p>
+   async function handleDeleteIncident(id) {
+      try {
+         await api.delete(`incidents/${id}`, {
+            headers: {
+               Authorization: ongId
+            }
+         })
 
-                    <button type="button" >
-                        <FiTrash2 size = {20} color = "#a8a8d3"></FiTrash2>
-                    </button>
-                </li>
-                <li>
-                    <strong>CASO : </strong>
-                    <p>Caso teste</p>
+         setIncidents(incidents.filter(incident => incident.id !== id))
+      } catch (error) {
+         alert(`Erro ao deletar, tente novamente.`)
+      }
+   }
 
-                    <strong>DESCRIÇÃO: </strong>
-                    <p>Descricao teste</p>
+   function handleLogout() {
+      localStorage.clear()
 
-                    <strong>VALOR: </strong>
-                    <p> R$ 120,00 </p>
+      history.push('/')
+   }
 
-                    <button type="button" >
-                        <FiTrash2 size = {20} color = "#a8a8d3"></FiTrash2>
-                    </button>
-                </li>
-                <li>
-                    <strong>CASO : </strong>
-                    <p>Caso teste</p>
+   return (
+      <div className="profile-container">
+         <header>
+            <img src={logoImg} alt="Be The Hero" />
+            <span>Bem-vinda, {ongName}</span>
 
-                    <strong>DESCRIÇÃO: </strong>
-                    <p>Descricao teste</p>
+            <Link className="button" to="/incidents/new">Cadastrar novo caso</Link>
+            <button onClick={handleLogout} type="button">
+               <FiPower size={18} />
+            </button>
+         </header>
 
-                    <strong>VALOR: </strong>
-                    <p> R$ 120,00 </p>
+         <h1>Casos Cadastrados</h1>
 
-                    <button type="button" >
-                        <FiTrash2 size = {20} color = "#a8a8d3"></FiTrash2>
-                    </button>
-                </li>
-            </ul>
-        </div>
-        
-    )
+         <ul>
+            {incidents.map(incident => (
+               <li key={incident.id}>
+                  <strong>CASO:</strong>
+                  <p>{incident.title}</p>
+
+                  <strong>DESCRIÇÃO:</strong>
+                  <p>{incident.description}</p>
+
+                  <strong>VALOR:</strong>
+                  <p>{Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(incident.value)}</p>
+
+                  <button onClick={() => handleDeleteIncident(incident.id)} type="button">
+                     <FiTrash2 size={20} color="#a8a8b3" />
+                  </button>
+               </li>
+            ))}
+         </ul>
+      </div>
+   )
 }
